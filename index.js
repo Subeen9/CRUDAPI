@@ -37,6 +37,35 @@ app.post('/api/user', async(req,res)=>{
         res.status(500).json({message:error.message})
     }
 })
+// update the data
+app.put('/api/update/:id',async(req, res)=>{
+    try{
+        const {id} = req.params;
+        const user = await model.findByIdAndUpdate(id,req.body)
+        if(!user){
+            return res.status(404).json({message: 'user not found'})
+        }
+        const updatedUser = await model.findById(id);
+        res.status(200).json(updatedUser)
+    }
+    catch(e){
+        res.status(500).json({message: error.message})
+    }
+})
+// delete the user
+app.delete('/api/delete/:id', async(req, res)=>{
+    try{
+        const {id} = req.params;
+        const user = await model.findByIdAndDelete(id)
+        if(!user){
+            res.status(500).json({message: "user not found"})
+        }
+        res.status(200).json("Deleted Successfully")
+    }
+    catch(e){
+        res.status(500).json({message:e.message})
+    }
+})
 mongoose.connect("mongodb+srv://subin:YloVABV7fMsg7nby@cluster0.0yidtdz.mongodb.net/Node?retryWrites=true&w=majority&appName=Cluster0")
 .then(()=>{
     console.log("database connected")
