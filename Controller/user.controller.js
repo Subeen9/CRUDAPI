@@ -19,14 +19,21 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await model.findByIdAndUpdate(id, req.body);
+    // Sanitize update payload: prevent injection of MongoDB operators
+    const updateData = {};
+    Object.keys(req.body || {}).forEach((key) => {
+      if (!key.startsWith("$")) {
+        updateData[key] = req.body[key];
+      }
+    });
+    const user = await model.findByIdAndUpdate(id, updateData);
     if (!user) {
       return res.status(404).json({ message: "user not found" });
     }
     const updatedUser = await model.findById(id);
     res.status(200).json(updatedUser);
   } catch (e) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: e.message });
   }
 };
 const addUsers = async (req, res) => {
