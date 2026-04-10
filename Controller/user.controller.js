@@ -1,4 +1,5 @@
 const model = require("../models/user.model");
+const sanitize = require("mongo-sanitize");
 const getUsers = async (req, res) => {
   try {
     const user = await model.find({});
@@ -20,10 +21,11 @@ const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     // Sanitize update payload: prevent injection of MongoDB operators
+    const sanitizedBody = sanitize(req.body || {});
     const updateData = {};
-    Object.keys(req.body || {}).forEach((key) => {
+    Object.keys(sanitizedBody).forEach((key) => {
       if (!key.startsWith("$")) {
-        updateData[key] = req.body[key];
+        updateData[key] = sanitizedBody[key];
       }
     });
     const user = await model.findByIdAndUpdate(id, updateData);
